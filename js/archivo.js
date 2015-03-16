@@ -10,8 +10,8 @@ var inicio = (function(){
   
   var inicio = function(){
     
-    var pequeño = window.matchMedia('(max-width:700px)'),
-        grande = window.matchMedia('(min-width:1400)');
+    var pequeño = window.matchMedia('(max-width:767px)'),
+        grande = window.matchMedia('(min-width:1500)');
     
     if(pequeño.matches){
       eventosPequeña();
@@ -42,7 +42,10 @@ var inicio = (function(){
   };
 
   // eventos para pantallas enormes
-  var eventosEnorme = function(){    
+  var eventosEnorme = function(){
+    var $footer = $('footer');
+    var altura = $footer.offset().top;
+    $('nav').css('height',altura+'px');
   };
 
   var anadirIndice = function(){
@@ -65,7 +68,7 @@ var inicio = (function(){
     $('html, body').stop().animate({
       'scrollTop': $elemento.offset().top
     }, 'slow', 'linear', function () {
-      window.location.hash = elemento;
+      window.location.hash = $elemento;
     });
   };
 
