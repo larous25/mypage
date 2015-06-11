@@ -432,7 +432,7 @@ a:active{
         bottom: 0;
     }
 }
-@media only screen and (min-width:768px) and (max-width: 900px){
+@media screen and (min-width:768px) and (max-width: 900px){
       article {
         width: 90%;
         right: 5%;
