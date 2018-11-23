@@ -1,7 +1,7 @@
 <template>
   <div id="formulario">
     <fieldset>
-      <legend>Contacto</legend>
+      <legend class="text-center">Contacto</legend>
       <div>
         <input type="text" id="nombre" name="nombre"  required/>
         <label for="nombre">Nombre:</label>
@@ -14,19 +14,23 @@
         <textarea name="texto" id="texto" required></textarea>
         <label for="texto">Asunto:</label>
       </div>
-      <button type="submit">Enviar</button>
+      <button type="submit" @click="send">Enviar</button>
     </fieldset>
   </div>
 </template>
 
 <script>
+/**/
 export default {
-  name: 'CarusselComponent',
+  name: 'FormComponent',
   data () {
     return {
     }
   },
   methods: {
+    send () {
+
+    }
   }
 }
 </script>
@@ -69,7 +73,7 @@ export default {
   }
   #formulario input {
     /* box-shadow: inset 0px -18px 29px -23px #c0c0c0; */
-    border-bottom: solid 2px #c0c0c0;
+    /* border-bottom: solid 2px #c0c0c0; */
     height: 50px;
     padding: 0px 30px 1px 30px;
     width: 100%;
@@ -93,8 +97,8 @@ export default {
   #formulario textarea {
     border:none;
     box-sizing: border-box;
-    box-shadow: inset 0px -18px 29px -25px #c0c0c0;
-    border-bottom: solid 2px #c0c0c0;
+    /* box-shadow: inset 0px -18px 29px -25px #c0c0c0; */
+    /* border-bottom: solid 2px #c0c0c0; */
     height: 60px;
     resize:none;
     padding: 10px 30px;

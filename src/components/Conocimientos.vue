@@ -3,8 +3,10 @@
 
 </div>
 </template>
-
 <script>
+/*
+  NOTA: esto podria estar en un api?
+*/
 export default {
   name: 'ConocimientoComponent',
   data () {

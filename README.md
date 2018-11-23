@@ -28,3 +28,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 -mirar que pantallas se necesitaran
 -pendiente pasar todo css y javascript luego
 -pasar el texto y al final mdificar
+
+- nuevo
+- posible hoja de vida con clave
+- portafolio
