@@ -1,17 +1,17 @@
 <template>
   <div id="formulario">
     <fieldset>
-      <legend class="text-center">Contacto</legend>
-      <div>
-        <input type="text" id="nombre" name="nombre"  required/>
+      <legend class="text-center bluePoolBg">Contacto</legend>
+      <div class="form-group">
+        <input type="text" id="nombre" name="nombre" class="form-control" required/>
         <label for="nombre">Nombre:</label>
       </div>
-      <div>
-        <input type="text" id="telefono"  required/>
+      <div class="form-group">
+        <input type="text" id="telefono" class="form-control" required/>
         <label for="telefono">Telefono:</label>
       </div>
-      <div>
-        <textarea name="texto" id="texto" required></textarea>
+      <div class="form-group">
+        <textarea name="texto" id="texto" class="form-control" required></textarea>
         <label for="texto">Asunto:</label>
       </div>
       <button type="submit" @click="send">Enviar</button>
@@ -37,7 +37,6 @@ export default {
 
 <style scoped>
   #formulario legend {
-    background: #2AA3F0;
     border: 2px solid white;
     border-radius: 5px;
     color: white;
@@ -71,16 +70,13 @@ export default {
     padding: 0px 10px;
     z-index: 2;
   }
-  #formulario input {
-    /* box-shadow: inset 0px -18px 29px -23px #c0c0c0; */
-    /* border-bottom: solid 2px #c0c0c0; */
+   #formulario input {
     height: 50px;
     padding: 0px 30px 1px 30px;
     width: 100%;
     z-index: 1;
     outline: none;
   }
-
   #formulario input:required {
     box-shadow:  none;
   }
@@ -97,8 +93,6 @@ export default {
   #formulario textarea {
     border:none;
     box-sizing: border-box;
-    /* box-shadow: inset 0px -18px 29px -25px #c0c0c0; */
-    /* border-bottom: solid 2px #c0c0c0; */
     height: 60px;
     resize:none;
     padding: 10px 30px;

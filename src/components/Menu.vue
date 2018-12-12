@@ -1,7 +1,7 @@
 <template>
-  <header id="menu">
+  <header id="menu" class="darkGreyBg">
     <nav>
-      <ul>
+      <ul :class="fondo">
         <li @click="animacion('#pres')" :class="{ cambia :cambia ('#pres') }">
           <span>
             Presentación
@@ -27,6 +27,14 @@
     </nav>
     <div class="cinta">
     </div>
+    <div>
+      <div>
+        <span class="icon-redo2"></span>
+      </div>
+      <div>
+        <span class="icon-reply"></span>
+      </div>
+    </div>
   </header>
 </template>
 
@@ -35,7 +43,8 @@ export default {
   name: 'MenuComponent',
   data () {
     return {
-      item: '#pres'
+      item: '#pres',
+      fondo: 'orangeUniformBg'
     }
   },
   created () {
@@ -59,10 +68,13 @@ export default {
 
       if (actual >= primero && actual <= (segundo - mitad)) {
         this.item = '#pres'
+        this.fondo = 'orangeUniformBg'
       } else if (actual >= (segundo - mitad) && actual <= (tercero - mitad)) {
         this.item = '#cos'
+        this.fondo = ''
       } else if (actual >= (tercero - mitad)) {
         this.item = '#gus'
+        this.fondo = 'bluePoolBg'
       }
     }
   }
@@ -72,7 +84,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 #menu {
-  background: #3E454C;
   border-right:2px solid black;
   box-sizing: border-box;
   height: 100vh;
@@ -91,7 +102,6 @@ export default {
 }
 
 #menu nav ul {
-  background: #2AA3F0;
   height: 100%;
   margin-top: 5%;
   padding-left:0px;

@@ -3,17 +3,17 @@
   <div class="carousel-inner">
     <div v-for="( e, index ) in elementos" :key="index" :class="[index == 0 ? animacion : '', 'carousel-item']">
       <div class="carousel-caption">
-        <h3>{{ e.titulo }}</h3>
+        <h3 class="text-right" >{{ e.titulo }}</h3>
         <div class="text-left">{{ e.texto }}</div>
       </div>
     </div>
   </div>
-  <a class="carousel-control-prev" role="button"  @click="cambiar('derecha')">
+  <span class="carousel-control-prev bluePoolC" role="button"  @click="cambiar('derecha')">
     &lt;
-  </a>
-  <a class="carousel-control-next" role="button" @click="cambiar('izquierda')">
+  </span>
+  <span class="carousel-control-next bluePoolC" role="button" @click="cambiar('izquierda')">
     &gt;
-  </a>
+  </span>
 </div>
 </template>
 
@@ -74,17 +74,20 @@ export default {
     color: black;
     height: 80%;
   }
-  #carrusel a {
-    color: #2AA3F0;
+  #carrusel span:hover,
+  #carrusel span:focus {
+    color: black;
+  }
+  #carrusel span {
     font-size: 40px;
     font-weight: bold;
+    cursor: pointer;
   }
   #carrusel h3 {
     color: blueviolet;
     float: left;
-    /* margin-top: 10%; */
-    text-align: center;
     width: 50%;
+    padding-right: 20px;
   }
   .derecha {
     animation: derecha 1.5s linear;
