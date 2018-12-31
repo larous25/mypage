@@ -1,10 +1,26 @@
 <template>
+<div>
     <router-view/>
+    <div v-if="messageError" class="alert">
+      {{messageError}}
+      <button type="button" class="close" @click="clear">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+</div>
 </template>
 
 <script>
+import { mapState, mapMutations } from 'vuex'
 export default {
-  name: 'App'
+  name: 'App',
+  methods: {
+    clear () {
+      this.$store.commit('setError', '')
+    },
+    ...mapMutations(['setError'])
+  },
+  computed: mapState(['messageError'])
 }
 </script>
 

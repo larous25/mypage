@@ -1,24 +1,26 @@
 /** NOTA:
- * index
- * - renderisar la pagina
- * /cv
- * - recibir solicitud de descarga del pdf con una contrasena
- * /api/contact
- * - recibir los datos del formulario contacto
- * /api/knewledge
- * - enviar opciones de de conocimiento
- * /login
- * /api/knewledge
- * - recibir obciones de conocimiento
- * /api/contacts
- * - ver datos de contacto
- * /api/visits
- * - ver cantidad de visitas o peticiones
- * /admin
- * - crea un admin
- * /api/coupons
- *  - crear cupones y ver cupones
- */
+* index
+* - renderisar la pagina
+* /cv
+* - recibir solicitud de descarga del pdf con una contraseña
+* /api/contacts
+* - recibir los datos del formulario contacto
+* /api/knewledges
+* - enviar opciones de de conocimiento
+* /login
+* /api/knewledges
+* - recibir opciones de conocimiento
+* /api/contacts
+* - ver datos de contacto
+* /api/visits
+* - ver cantidad de visitas o peticiones
+* /admin
+* - crea un admintrador
+* /api/coupons
+* - crear cupones y ver cupones
+*/
+
+const options = require('./options')
 
 const fs = require('fs')
 const path = require('path')
@@ -27,12 +29,16 @@ const mongoose = require('mongoose')
 const express = require('express')
 const jwt = require('jsonwebtoken')
 const bodyparser = require('body-parser')
+const cors = require('cors')
+const helmet = require('helmet')
 const app = express()
 
+app.use(helmet())
+app.use(cors())
 app.use('/static', express.static(path.join(__dirname, './dist/static')))
 app.use(bodyparser.json())
 
-const http = require('http')
+const { createServer } = require('http')
 
 const port = 5000
 
@@ -56,11 +62,12 @@ visitsSchema.pre('save', async function preSave (next) {
   try {
     let c = await TotalModel.findOne({ _id: 'counter' })
     if (!c) {
-      await new TotalModel({ _id: 'counter' }).save()
+      c = new TotalModel({ _id: 'counter' })
     } else {
       c.total++
-      await c.save()
     }
+
+    await c.save()
     next()
   } catch (error) {
     next(error)
@@ -84,24 +91,6 @@ couponsSchema.path('code').validate({
 
 const CouponModel = mongoose.model('coupons', couponsSchema)
 
-const userSchema = new mongoose.Schema({
-  email: { type: String, required: true },
-  pass: { type: String, required: true }
-}, { timestamps: true })
-
-userSchema.pre('save', async function savePass (next) {
-  try {
-    let salt = await bcrypt.genSalt(10)
-    let hast = await bcrypt.hash(this.pass, salt)
-    this.pass = hast
-    next()
-  } catch (error) {
-    next(error)
-  }
-})
-
-const UserModel = mongoose.model('user', userSchema)
-
 //
 const knewledgeSchema = new mongoose.Schema({
   branch: { type: String, required: true },
@@ -124,6 +113,60 @@ app.get('/', function index (req, res, next) {
   res.sendFile(path.join(__dirname, root))
 })
 
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, match: [/^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+\.([a-zA-Z{2,4}])+$/, 'porfavor use un email valido'] },
+  pass: { type: String, required: true }
+}, { timestamps: true })
+
+userSchema.pre('save', async function savePass (next) {
+  try {
+    let salt = await bcrypt.genSalt(10)
+    let hast = await bcrypt.hash(this.pass, salt)
+    this.pass = hast
+    next()
+  } catch (error) {
+    next(error)
+  }
+})
+
+const UserModel = mongoose.model('user', userSchema)
+
+const auth = async (req, res, next) => {
+  try {
+    let { authorization } = req.headers
+
+    // if not exits head
+    if (!authorization) {
+      let err = new Error('no tiene cabecera')
+      err.statusCode = 400
+      throw err
+    }
+
+    const payload = jwt.verify(authorization, options.mySecret)
+
+    // if head no have a user
+    if (!payload.user) {
+      let err = new Error('no tiene permiso')
+      err.statusCode = 403
+      throw err
+    }
+
+    let query = { _id: payload.user._id }
+    let user = await UserModel.find(query).exec()
+
+    if (!user) {
+      let err = new Error(`no tiene permiso compa'`)
+      err.statusCode = 403
+      throw err
+    }
+
+    req.user = user
+    return next()
+  } catch (error) {
+    return next(error)
+  }
+}
+
 app.post('/cv', async function readCv (req, res, next) {
   try {
     let { code } = req.body
@@ -136,8 +179,7 @@ app.post('/cv', async function readCv (req, res, next) {
     pass.used++
     await pass.save()
 
-    let file = 'file.pdf'
-    let filepath = `../private/${file}`
+    let filepath = `../private/${options.file}`
     let fileStream = fs.createReadStream(filepath)
     let filename = encodeURIComponent(filepath)
 
@@ -149,7 +191,7 @@ app.post('/cv', async function readCv (req, res, next) {
   }
 })
 
-app.post('/contact', async function createContact (req, res, next) {
+app.post('/api/contacts', async function createContact (req, res, next) {
   try {
     let { name, telephone, issue } = req.body
     let contactsDoct = new ContactsModel({ name, telephone, issue })
@@ -160,33 +202,13 @@ app.post('/contact', async function createContact (req, res, next) {
   }
 })
 
-app.post('/login', async function login (req, res, next) {
-  let { email, pass } = req.body
-  try {
-    let msgUserError = 'es necesario un email o pass'
-    if (!email || !pass) throw new Error(msgUserError)
-
-    let user = await UserModel.findOne({ email }).exec()
-
-    let msgFail = 'que paso? user - pass fail'
-    if (!user) throw new Error(msgFail)
-
-    let compare = await bcrypt.compare(email, user.email)
-    if (!compare) throw new Error(msgFail)
-
-    res.json({
-      token: await jwt.sign({ user }, 'SecretoMuyOculto', { expiresIn: '1d' })
-    })
-  } catch (error) {
-    next(error)
-  }
-})
-
+// crear administrador
 app.post('/admin', async function createAdmin (req, res, next) {
   try {
     let exists = await UserModel.findOne({}).exec()
     if (exists) throw new Error('Ya existe un admin mi pez')
     let { email, pass } = req.body
+    if (!email || !pass) throw new Error('Son necesarios los parametros =)')
     let user = await new UserModel({ email, pass }).save()
     res.send(user)
   } catch (error) {
@@ -194,7 +216,31 @@ app.post('/admin', async function createAdmin (req, res, next) {
   }
 })
 
-app.get('/api/visits', async function allvisits (req, res, next) {
+app.post('/login', async function login (req, res, next) {
+  let { email, pass } = req.body
+  try {
+    if (!email || !pass) throw new Error('es necesario un email o pass')
+
+    let user = await UserModel.findOne({ email }).exec()
+
+    let msgFail = 'que paso? user - pass fail'
+    let compare = await bcrypt.compare(pass, user.pass)
+    if (!user || !compare) {
+      let err = new Error(msgFail)
+      err.statusCode = 401
+      throw err
+    }
+
+    delete user.pass
+    delete user.__v
+    let token = await jwt.sign({ user }, options.mySecret, { expiresIn: '1d' })
+    res.json({ token })
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.get('/api/visits', auth, async function allvisits (req, res, next) {
   try {
     let visits = await VisitsModel.find({})
     let counter = await TotalModel.find({})
@@ -204,25 +250,25 @@ app.get('/api/visits', async function allvisits (req, res, next) {
   }
 })
 
-app.get('/api/contact', async function readContact (req, res, next) {
+app.get('/api/contacts', auth, async function readContact (req, res, next) {
   try {
     let contacts = await ContactsModel.find({}).exec()
-    res.json(contacts)
+    res.json({ contacts })
   } catch (error) {
     next(error)
   }
 })
 
-app.get('/api/knewledge', async function readKnewledge (req, res, next) {
+app.get('/api/knewledges', async function readKnewledge (req, res, next) {
   try {
-    let knews = await KnewledgeModel.find({}).exec()
-    res.json(knews)
+    let knewledges = await KnewledgeModel.find({}).exec()
+    res.json({ knewledges })
   } catch (error) {
     next(error)
   }
 })
 
-app.post('/api/knewledge', async function createknewledge (req, res, next) {
+app.post('/api/knewledges', auth, async function createknewledge (req, res, next) {
   try {
     let { branch, leaves } = req.body
 
@@ -235,16 +281,16 @@ app.post('/api/knewledge', async function createknewledge (req, res, next) {
   }
 })
 
-app.get('/api/coupons', async function couponsRead (req, res, next) {
+app.get('/api/coupons', auth, async function couponsRead (req, res, next) {
   try {
-    let codes = await CouponModel.find({}).exec()
-    res.json(codes)
+    let coupons = await CouponModel.find({}).exec()
+    res.json({ coupons })
   } catch (error) {
     next(error)
   }
 })
 
-app.post('/api/coupons', async function couponsCreate (req, res, next) {
+app.post('/api/coupons', auth, async function couponsCreate (req, res, next) {
   try {
     let { code, times } = req.body
     if (!code) throw new Error('es necesario el codigo')
@@ -268,12 +314,12 @@ mongoose.connection.on('error', error => {
 
 app.use(function errorHandler (err, req, res, next) {
   console.error('este es de la aplicacion Express', err)
-  res.sendStatus(err.statusCode || 400).json({
+  res.status(err.statusCode || 400).json({
     message: err.message
   })
 })
 
-const server = http.createServer(app)
+const server = createServer(app)
 server.listen(port)
 
 server
@@ -305,3 +351,27 @@ process
     console.error(`a ocurrido en la funcion ${p} el siguiente error: `, err.message)
     process.exit(1)
   })
+
+/**
+   * esto cuando tenga mas tiempito lo guardo en otro lugar
+         conocimientos: {
+        NodeJS: ['Frameworks: expressjs, ', 'npm'],
+        DBMS: ['Mongdb', 'MYSQL', 'SQLite'],
+        Test: ['mochajs', 'avajs', 'chaijs'],
+        HTML_5: ['web semantica'],
+        CSS_3: [
+          'Animaciones',
+          'Media query',
+          'Maquetación desde psd',
+          'Frameworks: bootstrap'
+        ],
+        JavaScript: [
+          'Manejo del Dom',
+          'Manejo del Bom',
+          'Ajax',
+          'Frameworks: Jquery, Vuejs 2, React',
+          'Herramientas: webpack, eslint'
+        ],
+        Otros: ['SSH', 'Git', 'Manejo Terminal']
+      }
+  */

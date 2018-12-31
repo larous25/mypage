@@ -120,4 +120,15 @@ export default {
     }
   }
 
+@media screen and (max-width:767px) {
+  #carrusel{
+    height: 400px;
+  }
+  #carrusel h3{
+    float: none;
+    width: auto;
+    padding: 0;
+    text-align: center !important;
+  }
+}
 </style>

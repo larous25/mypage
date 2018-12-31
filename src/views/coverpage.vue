@@ -2,10 +2,10 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-2">
+      <div class="col-12 col-md-2">
         <MenuComponent/>
       </div>
-      <main class="col-10">
+      <main class="col-12 col-md-10">
         <section id="pres">
           <article>
             <div class="con-pres row">
@@ -29,20 +29,12 @@
                   <div class="row">
                     <form class="form-inline mt-2">
                       <div class="form-group">
-                        <input type="text" class="form-control bg-white" placeholder="Codigo">
-                        <button class="ml-1 btn btn-sm bg-black">
+                        <input type="text" class="form-control bg-white" placeholder="Codigo" v-model="code">
+                        <button class="ml-1 btn btn-sm bg-black" @click="getCV(code)"  :disabled="disable">
                           Enviar
                         </button>
                       </div>
                     </form>
-                  </div>
-                  <div class="row alert alert-primary alert-dismissible text-white mt-1" v-if="!success" @click="hideAlert(true)">
-                    <span>
-                      Codigo erroneo
-                    </span>
-                    <button type="button" class="close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -107,6 +99,7 @@
 </template>
 
 <script>
+import { mapActions, mapMutations } from 'vuex'
 import MenuComponent from '@/components/Menu'
 import ConocimientosComponent from '@/components/Conocimientos'
 import CarruselComponent from '@/components/Carrusel'
@@ -117,7 +110,8 @@ export default {
   data () {
     return {
       formDownload: false,
-      success: true
+      disable: false,
+      code: ''
     }
   },
   components: {
@@ -130,9 +124,26 @@ export default {
     showForm (b) {
       this.formDownload = !b
     },
-    hideAlert (b) {
-      this.success = b
-    }
+    hideAlert () {
+      this.code = ''
+      this.disable = false
+    },
+    getCv (code) {
+      this.disable = true
+      this.$store.dispatch('getFile', code)
+        .then(res => {
+          // document.location.href = res
+        })
+        .catch(error => {
+          let { message } = error.request.data
+          this.$store.commit('setError', message)
+        })
+        .then(() => {
+          this.disable = false
+        })
+    },
+    ...mapMutations(['setError']),
+    ...mapActions(['getFile'])
   }
 }
 </script>
@@ -246,6 +257,7 @@ a:active {
     height: auto;
     width: 100%;
     right: 0%;
+    max-height: none;
   }
   article {
     height: auto;

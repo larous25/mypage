@@ -25,16 +25,6 @@
         </li>
       </ul>
     </nav>
-    <div class="cinta">
-    </div>
-    <div>
-      <div>
-        <span class="icon-redo2"></span>
-      </div>
-      <div>
-        <span class="icon-reply"></span>
-      </div>
-    </div>
   </header>
 </template>
 
@@ -169,6 +159,7 @@ export default {
     height: 80px;
     width: 100%;
     max-width: 100%;
+    margin-left: -15px;
   }
   #menu nav {
     top: 0px;

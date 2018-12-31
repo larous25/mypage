@@ -1,54 +1,46 @@
 <template>
-<div class="con-pres row">
-  <div v-for="(conocimiento, index) in conocimientos" :key="index" class="col">
-  <div class="cos-card card">
-    <div class="card-header text-center">
-      {{ index }}
+<div class="con-pres">
+  <div v-if="knewledges.length" class="row">
+    <div v-for="knewledge in knewledges" :key="knewledge.branch" class="col">
+      <div class="cos-card card">
+        <div class="card-header text-center">
+          {{ knewledge.branch }}
+        </div>
+        <ul class="list-group list-group-flush">
+          <li v-for="l in knewledge.leaves" :key="l" class="list-group-item">
+            {{l}}
+          </li>
+        </ul>
+      </div>
     </div>
-      <ul v-if="conocimiento" class="list-group list-group-flush">
-        <li v-for="c in conocimiento" :key="c" class="list-group-item">
-          {{c}}
-        </li>
-      </ul>
   </div>
+  <div v-else class="col">
+    <h4 class="text-center" style="margin-top:200px">
+      Sólo sé que no sé nada
+    </h4>
   </div>
 </div>
 </template>
 <script>
-/*
-  NOTA: esto podria estar en un api?
-  creo que deberia
-*/
+import { mapState, mapActions, mapMutations } from 'vuex'
+
 export default {
   name: 'ConocimientoComponent',
-  data () {
-    return {
-      conocimientos: {
-        NodeJS: ['Frameworks: expressjs, ', 'npm'],
-        DBMS: ['Mongdb', 'MYSQL', 'SQLite'],
-        Test: ['mochajs', 'avajs', 'chaijs'],
-        HTML_5: ['web semantica'],
-        CSS_3: [
-          'Animaciones',
-          'Media query',
-          'Maquetación desde psd',
-          'Frameworks: bootstrap'
-        ],
-        JavaScript: [
-          'Manejo del Dom',
-          'Manejo del Bom',
-          'Ajax',
-          'Frameworks: Jquery, Vuejs 2, React',
-          'Herramientas: webpack, eslint'
-        ],
-        Otros: ['SSH', 'Git', 'Manejo Terminal']
-      }
-    }
+  created () {
+    this.$store.dispatch('getKnewledges')
+      .then(({ data }) => {
+        this.$store.commit('changeKnewledges', data)
+      })
+      .catch(err => {
+        let { message } = err.request.data
+        this.$store.commit('setError', message)
+      })
   },
   methods: {
-    change () {
-    }
-  }
+    ...mapMutations(['changeKnewledges', 'setError']),
+    ...mapActions(['getKnewledges'])
+  },
+  computed: mapState(['knewledges'])
 }
 </script>
 <style >

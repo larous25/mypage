@@ -12,3 +12,7 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+# solo es una ruta y una cadena ejemplo:
+# module.exports = { file: 'file.pdf', mySecret: 'SecretoMuyOculto' }
+options.js

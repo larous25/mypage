@@ -3,35 +3,42 @@
     <fieldset>
       <legend class="text-center bluePoolBg">Contacto</legend>
       <div class="form-group">
-        <input type="text" id="nombre" name="nombre" class="form-control" required/>
+        <input type="text" id="nombre" name="nombre" class="form-control" required v-model="contact.name"/>
         <label for="nombre">Nombre:</label>
       </div>
       <div class="form-group">
-        <input type="text" id="telefono" class="form-control" required/>
+        <input type="text" id="telefono" class="form-control" required v-model="contact.phone"/>
         <label for="telefono">Telefono:</label>
       </div>
       <div class="form-group">
-        <textarea name="texto" id="texto" class="form-control" required></textarea>
+        <textarea name="texto" id="texto" class="form-control" required v-model="contact.comments"></textarea>
         <label for="texto">Asunto:</label>
       </div>
-      <button type="submit" @click="send">Enviar</button>
+      <button type="submit" @click="send(contact)">Enviar</button>
     </fieldset>
   </div>
 </template>
 
 <script>
-/**/
+import { mapState, mapActions, mapMutations } from 'vuex'
+
 export default {
   name: 'FormComponent',
-  data () {
-    return {
-    }
-  },
   methods: {
-    send () {
+    send (contact) {
+      this.$store.dispatch('sendContact', contact)
+        .then(request => {
 
-    }
-  }
+        })
+        .catch(err => {
+          let { message } = err.request.data
+          this.$store.commit('setError', message)
+        })
+    },
+    ...mapMutations(['setError']),
+    ...mapActions(['sendContact'])
+  },
+  computed: mapState(['contact'])
 }
 </script>
 
