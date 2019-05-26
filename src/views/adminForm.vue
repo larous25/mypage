@@ -6,14 +6,18 @@
     </p>
     <div class="form-group">
       <label for="" class="label">Email</label>
-      <input type="text" class="form-control" v-model="admin.email">
+      <input type="text" class="form-control darkGreyBg" v-model="admin.email" placeholder="example@example.com">
     </div>
     <div class="form-group">
       <label for="" class="label">***</label>
-      <input type="password" class="form-control" v-model="admin.pass">
+      <input type="password" class="form-control darkGreyBg" v-model="admin.pass" placeholder="123456">
     </div>
-    <div>
+
+    <div v-if="admin.email.length > 0 && admin.pass.length > 0">
       <button type="button" class="btn btn-lg" @click="send(admin)">Enviar</button>
+    </div>
+    <div v-else>
+      complete el formulario por favor
     </div>
   </div>
 </template>

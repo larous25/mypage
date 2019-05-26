@@ -307,7 +307,6 @@ a:active {
 
 [class^="icon-"], [class*=" icon-"] {
   font-family: 'icomoon' !important;
-  speak: none;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
